@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="8152.3" systemVersion="14E46" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="p4s-u4-uIk">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="8191" systemVersion="14F27" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="p4s-u4-uIk">
     <dependencies>
-        <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="8124.4"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="8154"/>
     </dependencies>
     <scenes>
         <!--Root View Controller-->
@@ -45,7 +44,13 @@
                             <outlet property="delegate" destination="Aeg-s8-zUN" id="qqH-aE-ga4"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" title="Root View Controller" id="NMF-ap-kTL"/>
+                    <navigationItem key="navigationItem" title="Root View Controller" id="NMF-ap-kTL">
+                        <barButtonItem key="rightBarButtonItem" title="Item" id="7P0-WZ-N97">
+                            <connections>
+                                <action selector="addButtonPressed:" destination="Aeg-s8-zUN" id="vEJ-fM-NDg"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="4CN-Up-OrU" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>

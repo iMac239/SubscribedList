@@ -13,24 +13,24 @@ import CloudKit
 extension AppDelegate {
     
     func subscribeForRemoteNotifications() {
-        let cm = CloudManager()
+        
         let predicate = NSPredicate(value: true)
-        let subscription = CKSubscription(recordType: "Event",
+        let subscription = CKSubscription(recordType: "CKEvent",
             predicate: predicate,
             options: [.FiresOnRecordCreation, .FiresOnRecordDeletion, .FiresOnRecordUpdate])
         
         let notificationInfo = CKNotificationInfo()
-        
-        notificationInfo.alertBody = "A new House was added"
-        notificationInfo.shouldBadge = true
-        
+        notificationInfo.alertBody = "An event has been created, updated, or deleted!"
+        notificationInfo.shouldBadge = false
+        notificationInfo.shouldSendContentAvailable = true
         subscription.notificationInfo = notificationInfo
         
-        cm.publicDatabase?.fetchSubscriptionWithID(subscription.subscriptionID) { existingSubscription, error in
+        cloud.publicDatabase?.fetchSubscriptionWithID(subscription.subscriptionID) { existingSubscription, error in
+            
             if let _ = existingSubscription {
                 print("subscription exists")
             } else {
-                cm.publicDatabase?.saveSubscription(subscription) { returnRecord, error in
+                self.cloud.publicDatabase?.saveSubscription(subscription) { returnRecord, error in
                     if let err = error {
                         print("subscription failed %@", err.code)
                     } else {
@@ -57,35 +57,41 @@ extension AppDelegate {
         
     }
     
-    func application(application: UIApplication, didReceiveRemoteNotification userInfo: [NSObject : AnyObject]) {
-        print("remote notification")
+    func application(application: UIApplication, didReceiveRemoteNotification userInfo: [NSObject : AnyObject], fetchCompletionHandler completionHandler: (UIBackgroundFetchResult) -> Void) {
+
+        let aps = userInfo["aps"] as! [String : AnyObject]
+        print(aps)
         
-        let token = NSUserDefaults.standardUserDefaults().objectForKey("ServerChangeToken") as? CKServerChangeToken
+        let ca = aps["content-available"]
+        print(ca)
         
-        let fetchRecordChangesOperation = CKFetchRecordChangesOperation(recordZoneID: CKRecordZone.defaultRecordZone().zoneID, previousServerChangeToken: token)
-        fetchRecordChangesOperation.fetchRecordChangesCompletionBlock = { token, data, error in
+        
+        if application.applicationState == .Inactive || application.applicationState == .Active {
             
-        }
-        
-        
-        let cloudKitNotification = CKNotification(fromRemoteNotificationDictionary: userInfo  as! [String: NSObject])
-        
-        
-        if cloudKitNotification.notificationType == .Query {
-            let queryNotification = cloudKitNotification as! CKQueryNotification
-            let id = queryNotification.recordID
-            print(id)
             
-            switch queryNotification.queryNotificationReason {
-            case .RecordCreated:
-                print("created")
-            case .RecordDeleted:
-                print("deleted")
-            case .RecordUpdated:
-                print("update")
+            let cloudKitNotification = CKNotification(fromRemoteNotificationDictionary: userInfo  as! [String: NSObject])
+            if cloudKitNotification.notificationType == .Query {
+                let queryNotification = cloudKitNotification as! CKQueryNotification
+                if let id = queryNotification.recordID {
+                    switch queryNotification.queryNotificationReason {
+                    case .RecordCreated:
+                        print("created")
+                        cloud.fetchRecord(id)
+                        
+                    case .RecordDeleted:
+                        print("deleted")
+                        
+                    case .RecordUpdated:
+                        print("update")
+                    }
+                }
             }
+            
+            
+        } else {
+            print("Background")
         }
+        
+        completionHandler(UIBackgroundFetchResult.NewData)
     }
-    
-    
-}
+ }
